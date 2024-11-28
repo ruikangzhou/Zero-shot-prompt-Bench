@@ -186,9 +186,9 @@
         "difficulty": "challenging",
         "answer": "SELECT b.bond_type, m.label FROM bond b JOIN molecule m ON b.molecule_id = m.molecule_id WHERE b.molecule_id = 'TR018' GROUP BY b.bond_type ORDER BY COUNT(*) DESC LIMIT 1",
         "error reason": "TR018 actually doesn't exist in the molecule table, thus the second half of the question is not possible to answer. o1 didn't realize this situation and thus output nothing.",
-        "error type": [
-            7
-        ]
+      "error type": [
+        6
+      ]
     },
     {
         "question_id": 16,
@@ -338,7 +338,7 @@
         "SQL": "SELECT T1.DisplayName FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId INNER JOIN posts AS T3 ON T2.PostId = T3.Id WHERE T1.DisplayName = 'Harvey Motulsky' OR T1.DisplayName = 'Noah Snyder' GROUP BY T1.DisplayName ORDER BY SUM(T3.ViewCount) DESC LIMIT 1",
         "difficulty": "challenging",
         "answer": "SELECT u.DisplayName, SUM(p.ViewCount) AS TotalViews FROM posts p JOIN users u ON p.OwnerUserId = u.Id WHERE u.DisplayName IN ('Harvey Motulsky', 'Noah Snyder') GROUP BY u.DisplayName",
-        "error reason": "o1 overselected `TotalViews` for sorting purposes.`",
+        "error reason": "o1 overselected `TotalViews for sorting purposes.`",
         "error type": [
             5
         ]
@@ -430,7 +430,7 @@
         "SQL": "SELECT (CAST(COUNT(*) AS FLOAT) / (SELECT COUNT(*) FROM superhero AS s JOIN gender AS g ON s.gender_id = g.id WHERE g.gender = 'Female')) * 100 AS female_heroes_marvel_percentage FROM superhero AS s JOIN gender AS g ON s.gender_id = g.id JOIN publisher AS p ON s.publisher_id = p.id WHERE g.gender = 'Female' AND p.publisher_name = 'Marvel Comics'",
         "difficulty": "challenging",
         "answer": "SELECT 100.0 * SUM(CASE WHEN p.`publisher_name` = 'Marvel Comics' THEN 1 ELSE 0 END) / COUNT(*) AS percentage FROM `superhero` s JOIN `gender` g ON s.`gender_id` = g.`id` JOIN `publisher` p ON s.`publisher_id` = p.`id` WHERE g.`gender` = 'Female'",
-        "error reason": "o1 joined the superhero and publisher tables when calculating the total number of heroines, which is not necessary and eventually leads to data loss.",
+        "error reason": "o1 joined the superhero and publisher tables when calculating the total number of heroines, which is not necessary and leads to data loss.",
         "error type": [
             5
         ]
@@ -569,17 +569,17 @@
         "error reason": "None",
         "error type": []
     },
-    {
-        "question_id": 49,
-        "db_id": "formula_1",
-        "question": "In the race a driver set the lap record for the Austrian Grand Prix circuit, how long in seconds did he spent at the pit stop at that same race? Retain the decimal part.",
-        "evidence": "lap record means the fastest time recorded which refers to time, how long spent at pitstop refers to duration",
-        "SQL": "WITH fastest_lap_times AS ( SELECT T1.raceId, T1.driverId, T1.FastestLapTime, (CAST(SUBSTR(T1.FastestLapTime, 1, INSTR(T1.FastestLapTime, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, ':') + 1, INSTR(T1.FastestLapTime, '.') - INSTR(T1.FastestLapTime, ':') - 1) AS REAL)) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, '.') + 1) AS REAL) / 1000) as time_in_seconds FROM results AS T1 WHERE T1.FastestLapTime IS NOT NULL), lap_record_race AS ( SELECT T1.raceId, T1.driverId FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId INNER JOIN ( SELECT MIN(fastest_lap_times.time_in_seconds) as min_time_in_seconds FROM fastest_lap_times INNER JOIN races AS T2 on fastest_lap_times.raceId = T2.raceId INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId WHERE T2.name = 'Austrian Grand Prix') AS T4 ON (CAST(SUBSTR(T1.FastestLapTime, 1, INSTR(T1.FastestLapTime, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, ':') + 1, INSTR(T1.FastestLapTime, '.') - INSTR(T1.FastestLapTime, ':') - 1) AS REAL)) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, '.') + 1) AS REAL) / 1000) = T4.min_time_in_seconds WHERE T2.name = 'Austrian Grand Prix') SELECT CAST(T4.duration AS REAL) FROM lap_record_race INNER JOIN pitStops AS T4 on lap_record_race.raceId = T4.raceId AND lap_record_race.driverId = T4.driverId",
-        "difficulty": "challenging",
-        "answer": "SELECT SUM(p.milliseconds)/1000.0 AS pit_stop_seconds FROM pitStops p JOIN results r ON p.raceId = r.raceId AND p.driverId = r.driverId JOIN races ra ON p.raceId = ra.raceId WHERE ra.name = 'Austrian Grand Prix' AND ra.year = (SELECT MAX(year) FROM races WHERE name = 'Austrian Grand Prix') AND r.rank = 1",
-        "error reason": "None",
-        "error type": []
-    },
+  {
+    "question_id": 49,
+    "db_id": "formula_1",
+    "question": "In the race a driver set the lap record for the Austrian Grand Prix circuit, how long in seconds did he spent at the pit stop at that same race? Retain the decimal part.",
+    "evidence": "lap record means the fastest time recorded which refers to time, how long spent at pitstop refers to duration",
+    "SQL": "WITH fastest_lap_times AS ( SELECT T1.raceId, T1.driverId, T1.FastestLapTime, (CAST(SUBSTR(T1.FastestLapTime, 1, INSTR(T1.FastestLapTime, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, ':') + 1, INSTR(T1.FastestLapTime, '.') - INSTR(T1.FastestLapTime, ':') - 1) AS REAL)) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, '.') + 1) AS REAL) / 1000) as time_in_seconds FROM results AS T1 WHERE T1.FastestLapTime IS NOT NULL), lap_record_race AS ( SELECT T1.raceId, T1.driverId FROM results AS T1 INNER JOIN races AS T2 on T1.raceId = T2.raceId INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId INNER JOIN ( SELECT MIN(fastest_lap_times.time_in_seconds) as min_time_in_seconds FROM fastest_lap_times INNER JOIN races AS T2 on fastest_lap_times.raceId = T2.raceId INNER JOIN circuits AS T3 on T2.circuitId = T3.circuitId WHERE T2.name = 'Austrian Grand Prix') AS T4 ON (CAST(SUBSTR(T1.FastestLapTime, 1, INSTR(T1.FastestLapTime, ':') - 1) AS REAL) * 60) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, ':') + 1, INSTR(T1.FastestLapTime, '.') - INSTR(T1.FastestLapTime, ':') - 1) AS REAL)) + (CAST(SUBSTR(T1.FastestLapTime, INSTR(T1.FastestLapTime, '.') + 1) AS REAL) / 1000) = T4.min_time_in_seconds WHERE T2.name = 'Austrian Grand Prix') SELECT CAST(T4.duration AS REAL) FROM lap_record_race INNER JOIN pitStops AS T4 on lap_record_race.raceId = T4.raceId AND lap_record_race.driverId = T4.driverId",
+    "difficulty": "challenging",
+    "answer": "SELECT SUM(p.milliseconds)/1000.0 AS pit_stop_seconds FROM pitStops p JOIN results r ON p.raceId = r.raceId AND p.driverId = r.driverId JOIN races ra ON p.raceId = ra.raceId WHERE ra.name = 'Austrian Grand Prix' AND ra.year = (SELECT MAX(year) FROM races WHERE name = 'Austrian Grand Prix') AND r.rank = 1",
+    "error reason": "None",
+    "error type": []
+  },
     {
         "question_id": 50,
         "db_id": "european_football_2",
@@ -593,17 +593,17 @@
             5
         ]
     },
-    {
-        "question_id": 51,
-        "db_id": "european_football_2",
-        "question": "At present, calculate for the player's age who have a sprint speed of no less than 97 between 2013 to 2015.",
-        "evidence": "players age at present = SUBTRACT((DATETIME(), birthday)); sprint_speed > = 97; between 2013 to 2015 refers to date > = '2013-01-01 00:00:00' AND date < = '2015-12-31 00:00:00';",
-        "SQL": "SELECT DISTINCT  (CAST(strftime('%Y',current_timestamp) AS INTEGER) - CAST(strftime('%Y', T2.birthday) AS INTEGER)) - CAST(strftime('%m-%d', current_timestamp) < strftime('%m-%d', T2.birthday) AS INTEGER) AS age FROM Player_Attributes AS t1 INNER JOIN Player AS t2 ON t1.player_api_id = t2.player_api_id WHERE SUBSTR(t1.`date`, 1, 10) BETWEEN '2013-01-01' AND '2015-12-31' AND t1.sprint_speed >= 97",
-        "difficulty": "challenging",
-        "answer": "SELECT DISTINCT (CAST(strftime('%Y', current_timestamp) AS INTEGER) - CAST(strftime('%Y', p.birthday) AS INTEGER)) - CAST(strftime('%m-%d', current_timestamp) < strftime('%m-%d', p.birthday) AS INTEGER) AS age FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE pa.sprint_speed >= 97 AND pa.date BETWEEN '2013-01-01' AND '2015-12-31'",
-        "error reason": "None",
-        "error type": []
-    },
+  {
+    "question_id": 51,
+    "db_id": "european_football_2",
+    "question": "At present, calculate for the player's age who have a sprint speed of no less than 97 between 2013 to 2015.",
+    "evidence": "players age at present = SUBTRACT((DATETIME(), birthday)); sprint_speed > = 97; between 2013 to 2015 refers to date > = '2013-01-01 00:00:00' AND date < = '2015-12-31 00:00:00';",
+    "SQL": "SELECT DISTINCT  (CAST(strftime('%Y',current_timestamp) AS INTEGER) - CAST(strftime('%Y', T2.birthday) AS INTEGER)) - CAST(strftime('%m-%d', current_timestamp) < strftime('%m-%d', T2.birthday) AS INTEGER) AS age FROM Player_Attributes AS t1 INNER JOIN Player AS t2 ON t1.player_api_id = t2.player_api_id WHERE SUBSTR(t1.`date`, 1, 10) BETWEEN '2013-01-01' AND '2015-12-31' AND t1.sprint_speed >= 97",
+    "difficulty": "challenging",
+    "answer": "SELECT DISTINCT (CAST(strftime('%Y', current_timestamp) AS INTEGER) - CAST(strftime('%Y', p.birthday) AS INTEGER)) - CAST(strftime('%m-%d', current_timestamp) < strftime('%m-%d', p.birthday) AS INTEGER) AS age FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE pa.sprint_speed >= 97 AND pa.date BETWEEN '2013-01-01' AND '2015-12-31'",
+    "error reason": "None",
+    "error type": []
+  },
     {
         "question_id": 52,
         "db_id": "european_football_2",
@@ -667,25 +667,25 @@
         "SQL": "SELECT (SUM(CASE WHEN t1.player_name = 'Landon Donovan' THEN t2.overall_rating ELSE 0 END) * 1.0 - SUM(CASE WHEN t1.player_name = 'Jordan Bowery' THEN t2.overall_rating ELSE 0 END)) * 100 / SUM(CASE WHEN t1.player_name = 'Jordan Bowery' THEN t2.overall_rating ELSE 0 END) LvsJ_percent FROM Player AS t1 INNER JOIN Player_Attributes AS t2 ON t1.player_fifa_api_id = t2.player_fifa_api_id WHERE SUBSTR(t2.`date`, 1, 10) = '2013-07-12'",
         "difficulty": "challenging",
         "answer": "WITH ld AS (SELECT AVG(pa.overall_rating) AS avg_rating FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE p.player_name = 'Landon Donovan' AND pa.date <= '2013-07-12 00:00:00' AND pa.overall_rating IS NOT NULL), jb AS (SELECT AVG(pa.overall_rating) AS avg_rating FROM Player p JOIN Player_Attributes pa ON p.player_api_id = pa.player_api_id WHERE p.player_name = 'Jordan Bowery' AND pa.date <= '2013-07-12 00:00:00' AND pa.overall_rating IS NOT NULL) SELECT ((ld.avg_rating - jb.avg_rating) / jb.avg_rating) * 100 AS percentage_increase FROM ld, jb",
-        "error reason": "o1 failed to handle special time formats by using pa.date <= '2013-07-12 00:00:00', which excludes all data after 2013-07-12 00:00:00. This is not reasonable, since data exactly on 2013-07-12 should also be considered.",
+        "error reason": "o1 failed to handle special time formats (2013-7-12 00:00:00).",
         "error type": [
             4
         ]
     },
-    {
-        "question_id": 58,
-        "db_id": "thrombosis_prediction",
-        "question": "For in-patient age 50 and above, what is their average anti-cardiolipin antibody (IgG) concentration?",
-        "evidence": "in-patient refers to Admission = '+'; age 50 and above refers to SUBTRACT(year(current_timestamp), year(Birthday)) >= '50'; average anti-cardiolipin antibody (IgG) concentration refers to AVG(aCL IgG)",
-        "SQL": "SELECT AVG(T2.`aCL IgG`) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE (strftime('%Y', 'now') - strftime('%Y', T1.Birthday)) - (strftime('%m-%d', 'now') < strftime('%m-%d', T1.Birthday)) >= 50 AND T1.Admission = '+'",
-        "difficulty": "challenging",
-        "answer": "SELECT AVG(`aCL IgG`) FROM Examination JOIN Patient ON Examination.ID = Patient.ID WHERE (`Admission` = '+' OR `Admission` = '+(') AND ((julianday(`Examination Date`) - julianday(`Birthday`)) / 365.25) >= 50 AND `aCL IgG` IS NOT NULL",
-        "error reason": "o1 did not understand that the requirement was current age instead of the age when examination was executed and also mistook '+(' for '+'.",
-        "error type": [
-            1,
-            3
-        ]
-    },
+  {
+    "question_id": 58,
+    "db_id": "thrombosis_prediction",
+    "question": "For in-patient age 50 and above, what is their average anti-cardiolipin antibody (IgG) concentration?",
+    "evidence": "in-patient refers to Admission = '+'; age 50 and above refers to SUBTRACT(year(current_timestamp), year(Birthday)) >= '50'; average anti-cardiolipin antibody (IgG) concentration refers to AVG(aCL IgG)",
+    "SQL": "SELECT AVG(T2.`aCL IgG`) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE (strftime('%Y', 'now') - strftime('%Y', T1.Birthday)) - (strftime('%m-%d', 'now') < strftime('%m-%d', T1.Birthday)) >= 50 AND T1.Admission = '+'",
+    "difficulty": "challenging",
+    "answer": "SELECT AVG(`aCL IgG`) FROM Examination JOIN Patient ON Examination.ID = Patient.ID WHERE (`Admission` = '+' OR `Admission` = '+(') AND ((julianday(`Examination Date`) - julianday(`Birthday`)) / 365.25) >= 50 AND `aCL IgG` IS NOT NULL",
+    "error reason": "o1 did not understand that the requirement was current age instead of the age when examination was executed and also mistook '+(' for '+'.",
+    "error type": [
+      1,
+      3
+    ]
+  },
     {
         "question_id": 59,
         "db_id": "thrombosis_prediction",
@@ -720,7 +720,7 @@
         "SQL": "SELECT CAST((SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) - SUM(CASE WHEN T2.Date LIKE '1981-12-%' THEN T2.`T-CHO` ELSE 0 END)) AS REAL) / SUM(CASE WHEN T2.Date LIKE '1981-11-%' THEN T2.`T-CHO` ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1959-02-18'",
         "difficulty": "challenging",
         "answer": "SELECT ((Nov_TCHO - Dec_TCHO) / Nov_TCHO) * 100 AS DecreaseRate FROM (SELECT P.`ID`, (SELECT L1.`T-CHO` FROM Laboratory L1 WHERE L1.`ID` = P.`ID` AND L1.`Date` BETWEEN '1981-11-01' AND '1981-11-30' ORDER BY L1.`Date` DESC LIMIT 1) AS Nov_TCHO, (SELECT L2.`T-CHO` FROM Laboratory L2 WHERE L2.`ID` = P.`ID` AND L2.`Date` BETWEEN '1981-12-01' AND '1981-12-31' ORDER BY L2.`Date` DESC LIMIT 1) AS Dec_TCHO FROM Patient P WHERE P.`Birthday` = '1959-02-18') AS Sub",
-        "error reason": "o1 failed to avoid division between intergers with ((Nov_TCHO - Dec_TCHO) / Nov_TCHO) * 100, resulting in loss of precision.",
+        "error reason": "o1 failed to avoid division between intergers, resulting in loss of precision.",
         "error type": [
             4
         ]
@@ -780,57 +780,57 @@
         "error reason": "None",
         "error type": []
     },
-    {
-        "question_id": 67,
-        "db_id": "thrombosis_prediction",
-        "question": "Provide ID, sex and age of patient who once has blood glucose (GLU) not within normal range but with total cholesterol(T-CHO) within normal range.",
-        "evidence": "age = (julianday(CURRENT_TIMESTAMP) - julianday(T1.Birthday))/365.25; blood glucose (GLU) not within normal range refers to GLU > = 180; total cholesterol(T-CHO) within normal range refers to `T-CHO` < 250;",
-        "SQL": "SELECT DISTINCT T1.ID, T1.SEX , (strftime('%Y', CURRENT_TIMESTAMP) - strftime('%Y', T1.Birthday)) - (strftime('%m-%d', CURRENT_TIMESTAMP) < strftime('%m-%d',T1. Birthday))  FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GLU >= 180 AND T2.`T-CHO` < 250",
-        "difficulty": "challenging",
-        "answer": "SELECT Patient.ID, Patient.SEX, CAST((julianday(Laboratory.Date) - julianday(Patient.Birthday))/365.25 AS INTEGER) AS age FROM Patient JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.GLU >= 180 AND Laboratory.`T-CHO` < 250",
-        "error reason": "o1 failed to understand that current age is required, not the age when doing the experiments; also lacks DISTINCT.",
-        "error type": [
-            1,
-            5
-        ]
-    },
-    {
-        "question_id": 68,
-        "db_id": "thrombosis_prediction",
-        "question": "For laboratory examinations take in 1984, list all patients below 50 years old with normal platelet level at that time.",
-        "evidence": "laboratory examinations take in 1984 refers to Date like '1984%'; below 50 years old = (julianday(T2.Date) - julianday(T1.Birthday))/365.25 < 50; normal platelet level refers to PLT between 100 and 400;",
-        "SQL": "SELECT DISTINCT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.PLT BETWEEN 100 AND 400 AND (strftime('%Y', T2.Date) - strftime('%Y', T1.Birthday)) - (strftime('%m-%d', T2.Date) < strftime('%m-%d',T1. Birthday))  < 50 AND STRFTIME('%Y', T2.Date) = '1984'",
-        "difficulty": "challenging",
-        "answer": "SELECT Patient.ID, Patient.SEX, Patient.Birthday FROM Laboratory JOIN Patient ON Laboratory.ID = Patient.ID WHERE Laboratory.Date BETWEEN '1984-01-01' AND '1984-12-31' AND (CAST(strftime('%Y', Laboratory.Date) AS INTEGER) - CAST(strftime('%Y', Patient.Birthday) AS INTEGER)) < 50 AND Laboratory.PLT BETWEEN 100 AND 400",
-        "error reason": "o1 Failed to recognize that selecting `ID` also requires DISTINCT and also failed to circumvent multiple selections of `Birthday` and `SEX`.",
-        "error type": [
-            5
-        ]
-    },
-    {
-        "question_id": 69,
-        "db_id": "thrombosis_prediction",
-        "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
-        "evidence": "older than 55 years old = SUBTRACT(year(current_timestamp), year(Birthday)) > 55; percentage = MULTIPLY(DIVIDE(SUM(PT > = 14 AND SEX = 'F'), SUM(PT > = 14)), 1.0); female refers to Sex = 'F'; abnormal prothrombin time (PT) refers to PT > = 14;",
-        "SQL": "WITH total_patients AS (SELECT COUNT(DISTINCT `ID`) AS total FROM Patient WHERE (strftime('%Y', 'Now') - strftime('%Y', Birthday)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',Birthday)) > 55), female_abnormal_pt AS (SELECT COUNT(DISTINCT Patient.`ID`) AS female_abnormal_count FROM Patient JOIN Laboratory ON Patient.`ID` = Laboratory.`ID` WHERE (strftime('%Y', 'Now') - strftime('%Y', Birthday)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',Birthday)) > 55 AND SEX = 'F' AND PT IS NOT NULL AND PT >= 14) SELECT (female_abnormal_count * 100.0) / total AS percentage FROM total_patients, female_abnormal_pt",
-        "difficulty": "challenging",
-        "answer": "WITH total_patients AS (SELECT COUNT(DISTINCT `ID`) AS total FROM Patient WHERE (strftime('%Y', 'now') - strftime('%Y', Birthday)) > 55), female_abnormal_pt AS (SELECT COUNT(DISTINCT Patient.`ID`) AS female_abnormal_count FROM Patient JOIN Laboratory ON Patient.`ID` = Laboratory.`ID` WHERE (strftime('%Y', 'now') - strftime('%Y', Birthday)) > 55 AND SEX = 'F' AND PT IS NOT NULL AND PT >= 14) SELECT (female_abnormal_count * 100.0) / total AS percentage FROM total_patients, female_abnormal_pt",
-        "error reason": "o1 used a not so precise age counting algorithm which may result to small difference in the final result.This calculation only subtracts the birth year from the current year, ignoring whether the patient has had their birthday in the current year. As a result, patients who haven't had their birthday yet in the current year might be counted as one year older than they actually are.",
-        "error type": [
-            4
-        ]
-    },
-    {
-        "question_id": 70,
-        "db_id": "thrombosis_prediction",
-        "question": "Among the patients whose C-reactive protein level is abnormal, how many of them aren't 18 yet when their C-reactive protein level was measured?",
-        "evidence": "C-reactive protein level is abnormal refers to CRP NOT IN('+-', '-') AND CRP > = 1.0; aren't 18 refers = CRP > = 1.0 AND SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 18; Should compute the number of distinct ones.",
-        "SQL": "SELECT COUNT(DISTINCT Laboratory.`ID`) FROM Laboratory JOIN Patient ON Laboratory.`ID` = Patient.`ID` WHERE Laboratory.`CRP` IS NOT NULL AND Laboratory.`Date` IS NOT NULL AND Patient.`Birthday` IS NOT NULL AND Laboratory.`CRP` NOT IN ('-', '+-') AND ((CAST(Laboratory.`CRP` AS REAL) >= 1.0) OR (Laboratory.`CRP` >= '>1.0' AND Laboratory.`CRP` NOT GLOB '[0-9.]*')) AND (strftime('%Y', Laboratory.Date) - strftime('%Y', Birthday)) - (strftime('%m-%d', Laboratory.Date) < strftime('%m-%d',Birthday)) < 18",
-        "difficulty": "challenging",
-        "answer": "SELECT COUNT(DISTINCT Laboratory.`ID`) FROM Laboratory JOIN Patient ON Laboratory.`ID` = Patient.`ID` WHERE Laboratory.`CRP` IS NOT NULL AND Laboratory.`Date` IS NOT NULL AND Patient.`Birthday` IS NOT NULL AND Laboratory.`CRP` NOT IN ('-', '+-') AND ((CAST(Laboratory.`CRP` AS REAL) >= 1.0) OR (Laboratory.`CRP` >= '>1.0' AND Laboratory.`CRP` NOT GLOB '[0-9.]*')) AND ((julianday(Laboratory.`Date`) - julianday(Patient.`Birthday`)) / 365.25) < 18",
-        "error reason": "None",
-        "error type": []
-    },
+  {
+    "question_id": 67,
+    "db_id": "thrombosis_prediction",
+    "question": "Provide ID, sex and age of patient who once has blood glucose (GLU) not within normal range but with total cholesterol(T-CHO) within normal range.",
+    "evidence": "age = (julianday(CURRENT_TIMESTAMP) - julianday(T1.Birthday))/365.25; blood glucose (GLU) not within normal range refers to GLU > = 180; total cholesterol(T-CHO) within normal range refers to `T-CHO` < 250;",
+    "SQL": "SELECT DISTINCT T1.ID, T1.SEX , (strftime('%Y', CURRENT_TIMESTAMP) - strftime('%Y', T1.Birthday)) - (strftime('%m-%d', CURRENT_TIMESTAMP) < strftime('%m-%d',T1. Birthday))  FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.GLU >= 180 AND T2.`T-CHO` < 250",
+    "difficulty": "challenging",
+    "answer": "SELECT Patient.ID, Patient.SEX, CAST((julianday(Laboratory.Date) - julianday(Patient.Birthday))/365.25 AS INTEGER) AS age FROM Patient JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Laboratory.GLU >= 180 AND Laboratory.`T-CHO` < 250",
+    "error reason": "o1 failed to understand that current age is required, not the age when doing the experiments. Lack DISTINCT.",
+    "error type": [
+      1,
+      5
+    ]
+  },
+  {
+    "question_id": 68,
+    "db_id": "thrombosis_prediction",
+    "question": "For laboratory examinations take in 1984, list all patients below 50 years old with normal platelet level at that time.",
+    "evidence": "laboratory examinations take in 1984 refers to Date like '1984%'; below 50 years old = (julianday(T2.Date) - julianday(T1.Birthday))/365.25 < 50; normal platelet level refers to PLT between 100 and 400;",
+    "SQL": "SELECT DISTINCT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.PLT BETWEEN 100 AND 400 AND (strftime('%Y', T2.Date) - strftime('%Y', T1.Birthday)) - (strftime('%m-%d', T2.Date) < strftime('%m-%d',T1. Birthday))  < 50 AND STRFTIME('%Y', T2.Date) = '1984'",
+    "difficulty": "challenging",
+    "answer": "SELECT Patient.ID, Patient.SEX, Patient.Birthday FROM Laboratory JOIN Patient ON Laboratory.ID = Patient.ID WHERE Laboratory.Date BETWEEN '1984-01-01' AND '1984-12-31' AND (CAST(strftime('%Y', Laboratory.Date) AS INTEGER) - CAST(strftime('%Y', Patient.Birthday) AS INTEGER)) < 50 AND Laboratory.PLT BETWEEN 100 AND 400",
+    "error reason": "o1 Failed to recognize that selecting `ID` also requires DISTINCT and also failed to circumvent multiple selections of `Birthday` and `SEX`.",
+    "error type": [
+      5
+    ]
+  },
+  {
+    "question_id": 69,
+    "db_id": "thrombosis_prediction",
+    "question": "For all patients who are older than 55 years old, what is the percentage of female who has abnormal prothrombin time (PT)?",
+    "evidence": "older than 55 years old = SUBTRACT(year(current_timestamp), year(Birthday)) > 55; percentage = MULTIPLY(DIVIDE(SUM(PT > = 14 AND SEX = 'F'), SUM(PT > = 14)), 1.0); female refers to Sex = 'F'; abnormal prothrombin time (PT) refers to PT > = 14;",
+    "SQL": "WITH total_patients AS (SELECT COUNT(DISTINCT `ID`) AS total FROM Patient WHERE (strftime('%Y', 'Now') - strftime('%Y', Birthday)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',Birthday)) > 55), female_abnormal_pt AS (SELECT COUNT(DISTINCT Patient.`ID`) AS female_abnormal_count FROM Patient JOIN Laboratory ON Patient.`ID` = Laboratory.`ID` WHERE (strftime('%Y', 'Now') - strftime('%Y', Birthday)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',Birthday)) > 55 AND SEX = 'F' AND PT IS NOT NULL AND PT >= 14) SELECT (female_abnormal_count * 100.0) / total AS percentage FROM total_patients, female_abnormal_pt",
+    "difficulty": "challenging",
+    "answer": "WITH total_patients AS (SELECT COUNT(DISTINCT `ID`) AS total FROM Patient WHERE (strftime('%Y', 'now') - strftime('%Y', Birthday)) > 55), female_abnormal_pt AS (SELECT COUNT(DISTINCT Patient.`ID`) AS female_abnormal_count FROM Patient JOIN Laboratory ON Patient.`ID` = Laboratory.`ID` WHERE (strftime('%Y', 'now') - strftime('%Y', Birthday)) > 55 AND SEX = 'F' AND PT IS NOT NULL AND PT >= 14) SELECT (female_abnormal_count * 100.0) / total AS percentage FROM total_patients, female_abnormal_pt",
+    "error reason": "o1 used a not so precise age counting algorithm which may result to small difference in the final result.This calculation only subtracts the birth year from the current year, ignoring whether the patient has had their birthday in the current year. As a result, patients who haven't had their birthday yet in the current year might be counted as one year older than they actually are.",
+    "error type": [
+      4
+    ]
+  },
+  {
+    "question_id": 70,
+    "db_id": "thrombosis_prediction",
+    "question": "Among the patients whose C-reactive protein level is abnormal, how many of them aren't 18 yet when their C-reactive protein level was measured?",
+    "evidence": "C-reactive protein level is abnormal refers to CRP NOT IN('+-', '-') AND CRP > = 1.0; aren't 18 refers = CRP > = 1.0 AND SUBTRACT((YEAR(CURDATE()), YEAR(Birthday))) < 18; Should compute the number of distinct ones.",
+    "SQL": "SELECT COUNT(DISTINCT Laboratory.`ID`) FROM Laboratory JOIN Patient ON Laboratory.`ID` = Patient.`ID` WHERE Laboratory.`CRP` IS NOT NULL AND Laboratory.`Date` IS NOT NULL AND Patient.`Birthday` IS NOT NULL AND Laboratory.`CRP` NOT IN ('-', '+-') AND ((CAST(Laboratory.`CRP` AS REAL) >= 1.0) OR (Laboratory.`CRP` >= '>1.0' AND Laboratory.`CRP` NOT GLOB '[0-9.]*')) AND (strftime('%Y', Laboratory.Date) - strftime('%Y', Birthday)) - (strftime('%m-%d', Laboratory.Date) < strftime('%m-%d',Birthday)) < 18",
+    "difficulty": "challenging",
+    "answer": "SELECT COUNT(DISTINCT Laboratory.`ID`) FROM Laboratory JOIN Patient ON Laboratory.`ID` = Patient.`ID` WHERE Laboratory.`CRP` IS NOT NULL AND Laboratory.`Date` IS NOT NULL AND Patient.`Birthday` IS NOT NULL AND Laboratory.`CRP` NOT IN ('-', '+-') AND ((CAST(Laboratory.`CRP` AS REAL) >= 1.0) OR (Laboratory.`CRP` >= '>1.0' AND Laboratory.`CRP` NOT GLOB '[0-9.]*')) AND ((julianday(Laboratory.`Date`) - julianday(Patient.`Birthday`)) / 365.25) < 18",
+    "error reason": "None",
+    "error type": []
+  },
     {
         "question_id": 71,
         "db_id": "student_club",
@@ -874,7 +874,7 @@
         "SQL": "SELECT DISTINCT M.first_name || ' ' || M.last_name AS full_name, M.phone AS contact_number FROM Member M JOIN Expense E ON M.member_id = E.link_to_member WHERE E.cost > (SELECT AVG(cost) FROM Expense)",
         "difficulty": "challenging",
         "answer": "SELECT DISTINCT Member.first_name, Member.last_name, Member.phone FROM Member JOIN Expense ON Expense.link_to_member = Member.member_id WHERE Expense.cost > (SELECT AVG(cost) FROM Expense)",
-        "error reason": "o1 failed to make combine the first and last name to be a full name.",
+        "error reason": "o1 failed to combine the first and last name to be a full name.",
         "error type": [
             5
         ]
@@ -1086,7 +1086,7 @@
         "SQL": "SELECT (SELECT AVG(ViewCount) FROM posts WHERE Tags LIKE '%<humor>%') AS AverageViewCount, p.Title, c.Text AS Comment, c.Score AS CommentScore FROM posts p LEFT JOIN comments c ON p.Id = c.PostId WHERE p.Tags LIKE '%<humor>%'",
         "difficulty": "challenging",
         "answer": "SELECT AVG(ViewCount) AS AverageViewCount FROM posts WHERE Tags LIKE '%<humor>%'; SELECT p.Title, c.Text AS Comment, c.Score AS CommentScore FROM posts p LEFT JOIN comments c ON p.Id = c.PostId WHERE p.Tags LIKE '%<humor>%'",
-        "error reason": "o1, while recognizing the need to use %<humor>%, is unable to merge the two requirements of the problem and thus gives two sql.",
+        "error reason": "o1, while recognizing the need to use %<humor>%, is unable to merge the two requirements of the problem and gives two sql.",
         "error type": [
             5
         ]
@@ -1168,19 +1168,19 @@
         "error reason": "None",
         "error type": []
     },
-    {
-        "question_id": 100,
-        "db_id": "european_football_2",
-        "question": "Which home team had lost the fewest matches in the 2015 to 2016 season?",
-        "evidence": "home team lost the matches refers to SUBTRACT(home_team_goal, away_team_goal) < 0; 2015 season refers to season = '2015/2016';",
-        "SQL": "WITH LossesPerTeam AS (SELECT home_team_api_id, SUM(CASE WHEN home_team_goal < away_team_goal THEN 1 ELSE 0 END) AS losses FROM Match WHERE season = '2015/2016' GROUP BY home_team_api_id), MinLosses AS (SELECT MIN(losses) AS min_losses FROM LossesPerTeam) SELECT Team.team_long_name FROM LossesPerTeam JOIN Team ON LossesPerTeam.home_team_api_id = Team.team_api_id WHERE LossesPerTeam.losses = (SELECT min_losses FROM MinLosses)",
-        "difficulty": "moderate",
-        "answer": "SELECT Team.team_long_name, SUM(CASE WHEN Match.home_team_goal < Match.away_team_goal THEN 1 ELSE 0 END) as losses FROM Match JOIN Team ON Match.home_team_api_id = Team.team_api_id WHERE Match.season = '2015/2016' GROUP BY Match.home_team_api_id ORDER BY losses ASC LIMIT 1",
-        "error reason": "o1 failed to consider the situation when there is a tie for first place.",
-        "error type": [
-            6
-        ]
-    },
+  {
+    "question_id": 100,
+    "db_id": "european_football_2",
+    "question": "Which home team had lost the fewest matches in the 2015 to 2016 season?",
+    "evidence": "home team lost the matches refers to SUBTRACT(home_team_goal, away_team_goal) < 0; 2015 season refers to season = '2015/2016';",
+    "SQL": "WITH LossesPerTeam AS (SELECT home_team_api_id, SUM(CASE WHEN home_team_goal < away_team_goal THEN 1 ELSE 0 END) AS losses FROM Match WHERE season = '2015/2016' GROUP BY home_team_api_id), MinLosses AS (SELECT MIN(losses) AS min_losses FROM LossesPerTeam) SELECT Team.team_long_name FROM LossesPerTeam JOIN Team ON LossesPerTeam.home_team_api_id = Team.team_api_id WHERE LossesPerTeam.losses = (SELECT min_losses FROM MinLosses)",
+    "difficulty": "moderate",
+    "answer": "SELECT Team.team_long_name, SUM(CASE WHEN Match.home_team_goal < Match.away_team_goal THEN 1 ELSE 0 END) as losses FROM Match JOIN Team ON Match.home_team_api_id = Team.team_api_id WHERE Match.season = '2015/2016' GROUP BY Match.home_team_api_id ORDER BY losses ASC LIMIT 1",
+    "error reason": "o1 failed to consider what happens when there is a tie for first place",
+    "error type": [
+      6
+    ]
+  },
     {
         "question_id": 101,
         "db_id": "european_football_2",
@@ -1226,22 +1226,22 @@
         "SQL": "SELECT CAST(SUM(CASE WHEN STRFTIME('%Y', Birthday) > '1930' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient WHERE SEX = 'F'",
         "difficulty": "moderate",
         "answer": "SELECT (COUNT(CASE WHEN SEX = 'F' AND strftime('%Y', Birthday) > '1930' THEN 1 END) * 100.0) / COUNT(*) AS percentage FROM Patient",
-        "error reason": "o1 misinterprets 'percentage of female patients were born after 1930' into (female patients born after 1930)/(all patients). The right interpretation should be (female patients born after 1930)/(all female patients)",
+        "error reason": "o1 misinterpreted 'percentage of female patients were born after 1930' as (female patients born after 1930)/(all patients). Right one should be (female patients born after 1930)/(all female patients)",
         "error type": [
             1
         ]
     },
-    {
-        "question_id": 105,
-        "db_id": "thrombosis_prediction",
-        "question": "State the ID and age of patient with positive degree of coagulation.",
-        "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); positive degree of coagulation refers to RVVT = '+' or LAC = '+' or KCT = '+'",
-        "SQL": "SELECT Examination.`ID`, (strftime('%Y', 'Now') - strftime('%Y', Patient.Birthday)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',Patient.Birthday)) AS age FROM Examination JOIN Patient ON Examination.`ID` = Patient.`ID` WHERE Examination.`KCT` = '+' OR Examination.`RVVT` = '+' OR Examination.`LAC` = '+'",
-        "difficulty": "moderate",
-        "answer": "SELECT Examination.`ID`, CAST((julianday('now') - julianday(Patient.`Birthday`)) / 365.25 AS INTEGER) AS age FROM Examination JOIN Patient ON Examination.`ID` = Patient.`ID` WHERE Examination.`KCT` = '+' OR Examination.`RVVT` = '+' OR Examination.`LAC` = '+'",
-        "error reason": "None",
-        "error type": []
-    },
+  {
+    "question_id": 105,
+    "db_id": "thrombosis_prediction",
+    "question": "State the ID and age of patient with positive degree of coagulation.",
+    "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); positive degree of coagulation refers to RVVT = '+' or LAC = '+' or KCT = '+'",
+    "SQL": "SELECT Examination.`ID`, (strftime('%Y', 'Now') - strftime('%Y', Patient.Birthday)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',Patient.Birthday)) AS age FROM Examination JOIN Patient ON Examination.`ID` = Patient.`ID` WHERE Examination.`KCT` = '+' OR Examination.`RVVT` = '+' OR Examination.`LAC` = '+'",
+    "difficulty": "moderate",
+    "answer": "SELECT Examination.`ID`, CAST((julianday('now') - julianday(Patient.`Birthday`)) / 365.25 AS INTEGER) AS age FROM Examination JOIN Patient ON Examination.`ID` = Patient.`ID` WHERE Examination.`KCT` = '+' OR Examination.`RVVT` = '+' OR Examination.`LAC` = '+'",
+    "error reason": "None",
+    "error type": []
+  },
     {
         "question_id": 106,
         "db_id": "student_club",
@@ -1552,17 +1552,17 @@
         "error reason": "None",
         "error type": []
     },
-    {
-        "question_id": 133,
-        "db_id": "formula_1",
-        "question": "How old is the youngest Japanese driver? What is his name?",
-        "evidence": "youngest Japanese driver refers to max(dob); Japanese refers to nationality = 'Japanese'; age = 2022-year(dob)+1\n",
-        "SQL": "SELECT (strftime('%Y', 'Now') - strftime('%Y', dob)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',dob)) AS age, forename, surname FROM drivers WHERE nationality = 'Japanese' ORDER BY dob DESC LIMIT 1",
-        "difficulty": "simple",
-        "answer": "SELECT (strftime('%Y', 'now') - strftime('%Y', dob)) - (strftime('%m-%d', 'now') < strftime('%m-%d', dob)), forename, surname AS age FROM drivers WHERE nationality = 'Japanese' ORDER BY dob DESC LIMIT 1",
-        "error reason": "None",
-        "error type": []
-    },
+  {
+    "question_id": 133,
+    "db_id": "formula_1",
+    "question": "How old is the youngest Japanese driver? What is his name?",
+    "evidence": "youngest Japanese driver refers to max(dob); Japanese refers to nationality = 'Japanese'; age = 2022-year(dob)+1\n",
+    "SQL": "SELECT (strftime('%Y', 'Now') - strftime('%Y', dob)) - (strftime('%m-%d', 'Now') < strftime('%m-%d',dob)) AS age, forename, surname FROM drivers WHERE nationality = 'Japanese' ORDER BY dob DESC LIMIT 1",
+    "difficulty": "simple",
+    "answer": "SELECT (strftime('%Y', 'now') - strftime('%Y', dob)) - (strftime('%m-%d', 'now') < strftime('%m-%d', dob)), forename, surname AS age FROM drivers WHERE nationality = 'Japanese' ORDER BY dob DESC LIMIT 1",
+    "error reason": "None",
+    "error type": []
+  },
     {
         "question_id": 134,
         "db_id": "european_football_2",
@@ -1608,7 +1608,7 @@
         "answer": "SELECT DISTINCT Patient.ID, Patient.SEX FROM Patient JOIN Laboratory ON Patient.ID = Laboratory.ID WHERE Patient.Admission = '\u2212' AND Laboratory.HGB < 10",
         "error reason": "The '\u2212' and '-'is different in SQL. o1 got them mixed up, and thus got no result.",
         "error type": [
-            3
+            1
         ]
     },
     {
