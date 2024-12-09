@@ -6,7 +6,7 @@ from config import Config
 from chatgpt import create_chat_completion
 import csv
 import re
-from table_schema import read_tableinfo, search_tableinfo
+from table_schema import read_tableinfo
 import sqlite3
 import ast
 

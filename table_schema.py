@@ -2,7 +2,7 @@ import sqlite3
 import os
 import csv
 import sqlite3
-
+from pathlib import Path
 def read_tableinfo(db):
     """"
     str = ""
@@ -14,8 +14,10 @@ def read_tableinfo(db):
     for i in table_names:
         cur.execute("SELECT sql FROM sqlite_master WHERE type='table' and name = '{}';".format(i[0]))
         str += cur.fetchall()[0][0] +'\n'
+
     """
-    dir = "D:\XDF\ChatDB\zeroshot_prototype_model\databases\dev_databases\{}\database_description".format(db)
+    script_dir = Path(__file__).parent.resolve()
+    dir = script_dir/"databases\dev_databases\{}\database_description".format(db)
     tabinfo = ''
     for root, dirs, files in os.walk(dir):
         for name in files:
@@ -74,54 +76,6 @@ def read_tableinfo(db):
 
     return tabinfo
 
-def read_dbnames():
-    dir = "D:\XDF\ChatDB\ChatDBtest_spider\spider\\database"
-    for root, dirs, files in os.walk(dir):
-        for file in files:
-            if os.path.join(root, file).endswith(".sqlite"):
-                1
-
-def search_tableinfo(column,table,db):
-    """"
-    str = ""
-    full_path = "D:\XDF\spider\spider\database\{}\{}.sqlite".format(db, db)
-    conn = sqlite3.connect(full_path)
-    cur = conn.cursor()
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    table_names = cur.fetchall()
-    for i in table_names:
-        cur.execute("SELECT sql FROM sqlite_master WHERE type='table' and name = '{}';".format(i[0]))
-        str += cur.fetchall()[0][0] +'\n'
-    """
-    dir = "D:\XDF\ChatDB\zeroshot_prototype_model\databases\dev_databases\{}\database_description".format(db)
-    tabinfo = ''
-    for root, dirs, files in os.walk(dir):
-        for name in files:
-
-            if name == (table + ".csv"):
-
-                filename = os.path.join(root, name)
-                with open(filename, encoding='utf-8', errors='ignore') as f:
-
-                    #print(filename)
-                    for row in csv.reader(f, skipinitialspace=True):
-
-                        if str(column.strip())==str(row[0].strip()):
-                            new_row = "`{}` column in table `{}`is described as: ".format(column,table)
-                            if (row[1] != '') and (row[2] == ''):
-                                new_row = new_row +  row[1].replace('\n', '') + "; "
-                            if (row[1] == '') and (row[2] != ''):
-                                new_row = new_row  + row[2].replace('\n', '') + "; "
-                            if (row[1] != '') and (row[2] != '') and (row[1] != row[2]):
-                                new_row = new_row + row[1].replace('\n', '') + " (" + row[
-                                    2].replace('\n', '') + "); "
-                            if (row[1] == row[2]) and (row[1] != ''):
-                                new_row = new_row  + row[1].replace('\n', '') + "; "
-
-                            if row[4] != '':
-                                new_row = new_row + row[4].replace('\n', '') + ". "
-
-                            return new_row
 
 
 #print(read_tableinfo("D:\XDF\ChatDB\zeroshot_prototype_model\databases\dev_databases\california_schools\california_schools.sqlite"))

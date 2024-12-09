@@ -2,10 +2,17 @@ import re
 from table_schema import read_tableinfo
 from chatgpt import create_chat_completion
 import sqlite3
-from read_json_spider import read_json
+import json
 from judge import judge
 from collections import Counter
+from pathlib import Path
 
+
+def read_json(id):
+    script_dir = Path(__file__).parent.resolve()
+    with open(script_dir/'dev_new.json','rb') as f:
+        d = json.load(f)
+        return d[id]['question'],d[id]['SQL'], d[id]['db_id'],d[id]['difficulty']#here id = real id - 1, altogether 1034
 
 def get_sql_from_response(response):
     pattern = r"Evidence:\s+(.*?)+ANSWER:\s+(.*?);"
@@ -121,7 +128,8 @@ def sql_execeute(response, target_sql, user_inp, db_name):
     #print(f"\nEvidence0: {response['description']}\n")
 
     ori_sql_cmd = ori_sql_cmd.replace('\n',' ')
-    conn =sqlite3.connect("D:\XDF\ChatDB\zeroshot_prototype_model\databases\dev_databases\{}\{}.sqlite".format(db_name, db_name))#here define spider dataset position
+    script_dir = Path(__file__).parent.resolve()
+    conn =sqlite3.connect(script_dir/"databases\dev_databases\{}\{}.sqlite".format(db_name, db_name))#here define spider dataset position
     cur = conn.cursor()
     try:
         #print(ori_sql_cmd, db_name)
