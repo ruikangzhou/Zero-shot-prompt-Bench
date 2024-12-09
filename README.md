@@ -1,4 +1,6 @@
 # Zero-shot-prompt-Bench
 The testing programm is zeroshottest.py. The 146 questions are stored in dev_new.json. 
-To run the program, first unzip the databases.zip.
-Then change "D:\XDF\ChatDB\zeroshot_prototype_model\databases" part of conn =sqlite3.connect("D:\XDF\ChatDB\zeroshot_prototype_model\databases\dev_databases\{}\{}.sqlite".format(db_name, db_name)) at 131 line of Zeroshottest.py to the place where you place the unzipped files.
+To run the program, first unzip the dev_databases.zip.
+If you haven't worked with Openai API before, enter your API key in .env.
+To change the GPT version, change 'model' in chatgpt.py.
+To use other models, modify the create_chat_completion() function with different models. 
