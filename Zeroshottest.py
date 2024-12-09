@@ -129,7 +129,7 @@ def sql_execeute(response, target_sql, user_inp, db_name):
 
     ori_sql_cmd = ori_sql_cmd.replace('\n',' ')
     script_dir = Path(__file__).parent.resolve()
-    conn =sqlite3.connect(script_dir/"databases\dev_databases\{}\{}.sqlite".format(db_name, db_name))#here define spider dataset position
+    conn =sqlite3.connect(script_dir/"dev_databases\dev_databases\{}\{}.sqlite".format(db_name, db_name))#here define spider dataset position
     cur = conn.cursor()
     try:
         #print(ori_sql_cmd, db_name)
