@@ -3,6 +3,7 @@ import os
 import csv
 import sqlite3
 from pathlib import Path
+
 def read_tableinfo(db):
     """"
     str = ""
@@ -17,7 +18,7 @@ def read_tableinfo(db):
 
     """
     script_dir = Path(__file__).parent.resolve()
-    dir = script_dir/"databases\dev_databases\{}\database_description".format(db)
+    dir = script_dir/"dev_databases\dev_databases\{}\database_description".format(db)
     tabinfo = ''
     for root, dirs, files in os.walk(dir):
         for name in files:
