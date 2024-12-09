@@ -1,10 +1,9 @@
 import re
-from chatdb_prompts import usr_prompt
-from langchain.prompts import PromptTemplate
+from table_schema import read_tableinfo
 from chatgpt import create_chat_completion
 import sqlite3
 from read_json_spider import read_json
-from judge import judge, judge_data
+from judge import judge
 from collections import Counter
 
 
@@ -113,13 +112,7 @@ ANSWER: SELECT name, country, age FROM singer ORDER BY age DESC;
     ANSWER: SELECT name, country, age FROM singer ORDER BY age DESC;
     ```
     """
-    sys_prompt = PromptTemplate(
-        template=sys_temp,
-        input_variables=[],
-    )
-    sys_prompt_str = sys_prompt.format()
-    #print(sys_prompt_str)
-    return sys_prompt_str
+    return sys_temp
 
 
 def sql_execeute(response, target_sql, user_inp, db_name):
@@ -174,50 +167,20 @@ def sql_execeute(response, target_sql, user_inp, db_name):
         """
         return 0
 
-def check_relevant_data(user_inp, sql, db_name):
-    relevance = judge_data(sql,user_inp,db_name)
-    full_msg = []
-    dict_sys = {'role': 'system', 'content': """
-You are a powerful AI assistant, a variant of ChatGPT that can generate SQL commands. \
-You are an expert in databases, proficient in SQL generation. \
-Rules are:\
-The databases are .sqlite, so use sqlite grammar instead of mysql grammar.\
-If space exists the column name e.g. "xxx xxx", use `xxx xxx` instead as the column name. \
-Check the relevance of the question and the given data information and justify if it is helpful to modify the SQL with these additional information.\
-Please answer the question of user in following format, including the leading and trailing "\`\`\`" and "\`\`\`", and "\;" in the end of SQL command:
-```
-Evidence: <reasoning your decision according to the columns in the table>
-<SQL command>;
-```
-Here is an example:
-Question: List the name, nationality, and age of the singer ordered by their ages. 
-```
-Evidence: The query includes name column, country column and age column of the table singers and arranges them in descending order of age.
-SELECT name, country, age FROM singer ORDER BY age DESC;
-```
-"""}
-    dict_usr = {'role': 'user', 'content': """
-Please refine the given SQL query that can fit some of the non-standard data format in the table according to the given data information. \
-If there is no need for refinement, keep it unchanged.\
-Please finish request in one step, with the help of following data information. Consider the data format and range:
-{}
-Please remember to follow the output format in system prompt.
-Question: {}
-
-""".format(relevance,user_inp)}
-    full_msg.append(dict_sys)
-    full_msg.append(dict_usr)
-    #print(full_msg)
-    response = create_chat_completion(full_msg)
-    return response
-
 def generate_chat_responses(user_inp,target_sql, db_name):
     # ask stepsF
 
     #print(user_inp)
     full_msg = []
+    usr_prompt = """
+    Please tell me what standard SQL statements should I use in order to respond to the "USER INPUT". \
+    Please finish request in one step, with the help of following table information:
+    {}
+    Please remember to follow the output format in system prompt.
+    USER INPUT:{}
+    """.format(read_tableinfo(db_name), user_inp)
     dict_sys = {'role': 'system', 'content': init_system_msg_prototype()}
-    dict_usr = {'role': 'user', 'content': usr_prompt(db_name, user_inp)}
+    dict_usr = {'role': 'user', 'content': usr_prompt}
     full_msg.append(dict_sys)
     full_msg.append(dict_usr)
     #print(full_msg)
@@ -297,4 +260,4 @@ if __name__ == '__main__':
         print("Simple Accuracy:{}/{}".format(diff_rcounter[2], diff_counter[2]))
         #time.sleep(0.2)
         i = i + 1
-    print(wrong_list)
+        print(wrong_list)
